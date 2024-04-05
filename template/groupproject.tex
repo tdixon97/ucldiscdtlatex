@@ -56,22 +56,30 @@
 %---------------------------------------------------------------------
 \newpage
 %---------------------------------------------------------------------
-\section{CEO Summary}
-\label{sec:summary}
-In less than 1000 characters (not counting spaces), explain the project goals and outcomes in high level  language accessible to the CEO. Please also include one figure (picture, sketch, diagram, distribution...), which is catchy and easy to explain/understand with a short caption.
 
-%---------------------------------------------------------------------
 \newpage
 %---------------------------------------------------------------------
 \section{Introduction}
 \label{sec:introduction}
 %\input{introduction}
 %---------------------------------------------------------------------
-
-\section{Methodology}
+\section{Data}
+\label{sec:data}
+{\color{red}Toby: I think what we should do here is describe the available datasets (where they come from, the size the features), and make some nice plots to show the distributuons in data etc.}
+\section{Methods}
 \label{sec:method}
+For this work we employ a biologically informed neural network to predict the radio-sensitivity. This is based on our adaptation of P-NET \cite{}. A typical dense neural network has millions of connections, and thus weights to tune. Thus can easily lead to over-fitting where the model predicts well on the training dataset but not on unseen data. A solution to this is to encode some prior knowledge into the models architechture. In this way we create a sparse network where the connections represent known biological pathways.
+\subsection{Network architecture}
+\subsection{Transfer learning}
+\subsection{Cross-validation and hyperparameter tuning}
+Due to the very small available datasets we found the performance of a given model can vary significantly based on the test splitting of the data. In addition, the performance can vary based on the random seeds used in the stochastic minimization of the loss function. We also found that the performance can depend significantly on model hyper-parameters. If these are tuned to optimize the performance on a particular test splitting of the data this will result in an overly optimistic estimate of the performance when trained on unseen data.
+\\ \indent To account for this we have developed a cross-validation procedure. This is used both to tune hyper-parameters and to make an unbiased estimate the model performance with a faithful uncertainty estimate. This procedure allows a fair comparison of different models.
+\\ \indent We employ a procedure of nested-random-cross-validation \cite{}. A set of randomly chosen test datasets  are selected. In each case the remaining data is used to tune the model hyper-parameters. For this we use a grid search with random-cross validation. For every hyper-parameter set the data is is partitioned into a validation and a training set. The model training is run using the validation set to decide the early stopping of the training and to estimate the performance. This is then repeated a number of times to obtain an estimate of the mean performance and uncertainty for this hyper-parameter set. The hyper-parameter set with the best model performance are then used to train the model, with the performance judged on the test dataset. The distribution of this testing performance give an unbiased estimate of the model performance, with a reliable uncertainty estimate. This procedure is very computationally intensive and has been implemented using batch job submission in parallel on the Myriad cluster at UCL.
+\\ \indent There are a number of hyper-parameters potentially affecting the model performance. For example the learning rate of the gradient descent and learning rate schedule, L2 regularization parameters, drop-out parameters etc. These hyper-parameters can broadly be divided into two classes, those which control the minimization of the loss function and those which add some terms / modify it to prevent over-fitting. We found most of the hyper-parameters are correlated so focused on two for a optimization, the learning rate and the regularization parameter.
 %\input{method}
+
 %---------------------------------------------------------------------
+
 
 \section{Results}
 \label{sec:results}
