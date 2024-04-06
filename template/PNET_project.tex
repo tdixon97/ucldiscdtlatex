@@ -66,6 +66,9 @@
 \section{Data}
 \label{sec:data}
 {\color{red}Toby: I think what we should do here is describe the available datasets (where they come from, the size the features), and make some nice plots to show the distributuons in data etc.}
+\\
+For this work we use data from the CCLE (full name+ \ref{}) database. This consists of measurements of the radio-sensitivity of 511 cell lines along with their genetic sequence. The radio-sensitivity is characterized by the area under the dose response curve (AUC). This is relatively expensive measure requiring irradiation of cells with known doses of radiation. This limits the size of the available dataset. 
+\\ \indent However, advances in genetic sequencing \ref{} mean that for each cell line there is a large amount of genetic information available. Thus the dataset available has a large number of features but very few data-points. This situation can easily lead to overfitting \ref{}. We focus on 3 genetic features. Gene-expression, copy number violation, and mutations.
 \section{Methods}
 \label{sec:method}
 For this work we employ a biologically informed neural network to predict the radio-sensitivity. This is based on our adaptation of P-NET \cite{}. A typical dense neural network has millions of connections, and thus weights to tune. Thus can easily lead to over-fitting where the model predicts well on the training dataset but not on unseen data. A solution to this is to encode some prior knowledge into the models architechture. In this way we create a sparse network where the connections represent known biological pathways.
@@ -75,7 +78,7 @@ For this work we employ a biologically informed neural network to predict the ra
 Due to the very small available datasets we found the performance of a given model can vary significantly based on the test splitting of the data. In addition, the performance can vary based on the random seeds used in the stochastic minimization of the loss function. We also found that the performance can depend significantly on model hyper-parameters. If these are tuned to optimize the performance on a particular test splitting of the data this will result in an overly optimistic estimate of the performance when trained on unseen data.
 \\ \indent To account for this we have developed a cross-validation procedure. This is used both to tune hyper-parameters and to make an unbiased estimate the model performance with a faithful uncertainty estimate. This procedure allows a fair comparison of different models.
 \\ \indent We employ a procedure of nested-random-cross-validation \cite{}. A set of randomly chosen test datasets  are selected. In each case the remaining data is used to tune the model hyper-parameters. For this we use a grid search with random-cross validation. For every hyper-parameter set the data is is partitioned into a validation and a training set. The model training is run using the validation set to decide the early stopping of the training and to estimate the performance. This is then repeated a number of times to obtain an estimate of the mean performance and uncertainty for this hyper-parameter set. The hyper-parameter set with the best model performance are then used to train the model, with the performance judged on the test dataset. The distribution of this testing performance give an unbiased estimate of the model performance, with a reliable uncertainty estimate. This procedure is very computationally intensive and has been implemented using batch job submission in parallel on the Myriad cluster at UCL.
-\\ \indent There are a number of hyper-parameters potentially affecting the model performance. For example the learning rate of the gradient descent and learning rate schedule, L2 regularization parameters, drop-out parameters etc. These hyper-parameters can broadly be divided into two classes, those which control the minimization of the loss function and those which add some terms / modify it to prevent over-fitting. We found most of the hyper-parameters are correlated so focused on two for a optimization, the learning rate and the regularization parameter.
+\\ \indent There are a number of hyper-parameters potentially affecting the model performance. For example the learning rate of the gradient descent and learning rate schedule, L2 regularization parameters, drop-out parameters etc. These hyper-parameters can broadly be divided into two classes, those which control the minimization of the loss function and those which add some terms / modify it to prevent over-fitting. We found most of the hyper-parameters are correlated so focused on two for a optimization, the learning rate and the regularization parameter which are tuned using a grid search.
 %\input{method}
 
 %---------------------------------------------------------------------
@@ -83,11 +86,26 @@ Due to the very small available datasets we found the performance of a given mod
 
 \section{Results}
 \label{sec:results}
+{\color{red}Toby: Here we could split up each of the 3 sub-projects but i think it would be more cohesive to just describe the results in parallel with the two network archtiutres}
+\\
+\subsection{Comparison of data types and architecture}
+We train the model independently for three different data types (see \ref{sec:data}), gene-expression, copy number violation and mutations. This is performed for both the Reactome and Gene Ontology network architure.
+\\
+{   \color{red}
+Plots to include:
+\begin{itemize}
+    \item Example scatter plots ?
+\item Performance for each of the 6 models?
+\item Hyperparameter scan plot?
+\end{itemize}}
+\subsection{Transfer learning}
 %\input{results}
 %---------------------------------------------------------------------
 
 \section{Conclusion}
 \label{sec:conclusion}
+
+
 %\input{conclusion}
 %---------------------------------------------------------------------
 
