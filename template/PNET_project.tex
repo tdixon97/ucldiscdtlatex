@@ -25,8 +25,8 @@
 %--------------------------------------------------------------------- 
 % Files with references for use with biblatex.
 % Note that biber gives an error if it finds empty bib files.
-%\usepackage{biblatex} % uncomment if use addbibresource command
-%\addbibresource{dis-gp.bib}
+\usepackage{biblatex} % uncomment if use addbibresource command
+\addbibresource{template/PNET_project.bib}
 %--------------------------------------------------------------------- 
 
 % Paths for figures - do not forget the / at the end of the directory name.
@@ -71,7 +71,7 @@ For this work we use data from the CCLE (full name+ \ref{}) database. This consi
 \\ \indent However, advances in genetic sequencing \ref{} mean that for each cell line there is a large amount of genetic information available. Thus the dataset available has a large number of features but very few data-points. This situation can easily lead to overfitting \ref{}. We focus on 3 genetic features. Gene-expression, copy number violation, and mutations.
 \section{Methods}
 \label{sec:method}
-For this work we employ a biologically informed neural network to predict the radio-sensitivity. This is based on our adaptation of P-NET \cite{}. A typical dense neural network has millions of connections, and thus weights to tune. Thus can easily lead to over-fitting where the model predicts well on the training dataset but not on unseen data. A solution to this is to encode some prior knowledge into the models architechture. In this way we create a sparse network where the connections represent known biological pathways.
+For this work we employ a biologically informed neural network to predict the radio-sensitivity. This is based on our adaptation of P-NET \cite{mythesis}. A typical dense neural network has millions of connections, and thus weights to tune. Thus can easily lead to over-fitting where the model predicts well on the training dataset but not on unseen data. A solution to this is to encode some prior knowledge into the models architechture. In this way we create a sparse network where the connections represent known biological pathways.
 \subsection{Network architecture}
 \subsection{Transfer learning}
 \subsection{Cross-validation and hyperparameter tuning}
@@ -105,7 +105,7 @@ Plots to include:
 \section{Conclusion}
 \label{sec:conclusion}
 
-
+\printbibliography
 %\input{conclusion}
 %---------------------------------------------------------------------
 
