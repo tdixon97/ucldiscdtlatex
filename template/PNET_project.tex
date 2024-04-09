@@ -82,7 +82,7 @@ For this work, we use genomic data as predictors. This type of information is co
 
 
 data from the CCLE (full name+ \ref{}) database. This consists of measurements of the radio-sensitivity of 511 cell lines along with their genetic sequence. The radio-sensitivity is characterized by the area under the dose-response curve (AUC). This is a relatively expensive measure requiring irradiation of cells with known doses of radiation. This limits the size of the available dataset. 
-\\ \indent However, advances in genetic sequencing \ref{} mean that for each cell line, there is a large amount of genetic information available. Thus the dataset available has a large number of features but very few data points. This situation can easily lead to over-fitting \ref{}. We focus on 3 genetic features. Gene expression, copy number violation, and mutations.
+\\ \indent However, advances in genetic sequencing \ref{} mean that for each cell line, there is a large amount of genetic information available. Thus the dataset available has a large number of features but very few data points. This situation can easily lead to over-fitting \ref{}. We focus on 3 genetic features; gene expression, copy number violation, and mutations.
 
 \section{Methods}
 \label{sec:method}
@@ -108,18 +108,21 @@ While the default first layer, which represents genes contains 14657 neurons, th
     \caption{DrugCell's \cite{kuenzi_predicting_2020} architecture, it is analogous to Reactome but the genes, biological processes and pathways are constructed independently and may not overlap.}
     \label{fig:2}
 \end{figure}
-
+\subsection{Loss function}
 \subsection{Regularisation}
 Despite the sparse network the model is still prone to over-fitting. To prevent this we employ $\mathtt{L2}$ regularisation. This consists of adding a penalty term to the loss function:
 \begin{equation}
     L_{L2} = \lambda \times \sum ||w||^2,
 \end{equation}
-for all the model weights $w$. This term will push the model towards smaller weights (or thus a simpler model). This term is characterised by the regularisation parameter $\lambda$, too small a value will lead to model overfitting, while too large can cause the weights to diverging to 0. In this case the model will not predict any variablility and instead predict for all outputs the mean of the training data.
+for all the model weights $w$. This term will push the model towards smaller weights (or thus a simpler model). This term is characterised by the regularisation parameter $\lambda$, too small a value will lead to model overfitting, while too large can cause the weights to diverging to 0. In this case the model will not predict any varibilility and instead predict for all outputs the mean of the training data.
+\subsection{Early stopping}
+We employ early stopping \cite{keras-docs} when training the model to further prevent over-fitting and improve training speed. This prevents very continuing training for many epochs, which while improving the loss function may decrease the validation data loss function. We employ early stopping using a patience of 5, this means that if the validation loss function increases for the patience number of consecutive epochs the training is halted and the weights with the lowest validation loss are used. We tested increasing the patience value but this had negligible effects.
+It should be noted that this procedure could potentially lead to a biased validation performance estimate. However, our final performance is quoted on test and not validation data.
 \subsection{Transfer learning}
 \subsection{Cross-validation and hyperparameter tuning}
 Due to the very small available datasets we found the performance of a given model can vary significantly based on the test splitting of the data. In addition, the performance can vary based on the random seeds used in the stochastic minimization of the loss function. We also found that the performance can depend significantly on model hyper-parameters. If these are tuned to optimize the performance on a particular test splitting of the data this will result in an overly optimistic estimate of the performance when trained on unseen data.
 \\ \indent To account for this we have developed a cross-validation procedure. This is used both to tune hyper-parameters and to make an unbiased estimate the model performance with a faithful uncertainty estimate. This procedure allows a fair comparison of different models.
-\\ \indent We employ a procedure of nested-random-cross-validation \cite{}. A set of randomly chosen test datasets  are selected. In each case the remaining data is used to tune the model hyper-parameters. For this we use a grid search with random-cross validation. For every hyper-parameter set the data is is partitioned into a validation and a training set. The model training is run using the validation set to decide the early stopping of the training and to estimate the performance. This is then repeated a number of times to obtain an estimate of the mean performance and uncertainty for this hyper-parameter set. The hyper-parameter set with the best model performance are then used to train the model, with the performance judged on the test dataset. The distribution of this testing performance give an unbiased estimate of the model performance, with a reliable uncertainty estimate. This procedure is very computationally intensive and has been implemented using batch job submission in parallel on the Myriad cluster at UCL.
+\\ \indent We employ a procedure of nested-random-cross-validation \cite{cross_validate}. A set of randomly chosen test datasets  are selected. In each case the remaining data is used to tune the model hyper-parameters. For this we use a grid search with random-cross validation. For every hyper-parameter set the data is is partitioned into a validation and a training set. The model training is run using the validation set to decide the early stopping of the training and to estimate the performance. This is then repeated a number of times to obtain an estimate of the mean performance and uncertainty for this hyper-parameter set. The hyper-parameter set with the best model performance are then used to train the model, with the performance judged on the test dataset. The distribution of this testing performance give an unbiased estimate of the model performance, with a reliable uncertainty estimate. This procedure is very computationally intensive and has been implemented using batch job submission in parallel on the Myriad cluster at UCL.
 \\ \indent There are a number of hyper-parameters potentially affecting the model performance. For example the learning rate of the gradient descent and learning rate schedule, L2 regularization parameters, drop-out parameters etc (see more details in the previous section). 
 These hyper-parameters can broadly be divided into two classes, those which control the minimization of the loss function and those which add some terms / modify it to prevent over-fitting. We found most of the hyper-parameters are correlated so focused on two for a optimization, the learning rate and the regularization parameter which are tuned using a grid search.  
 \\ \indent Other model hyper-parameters are not formally optimized. To prevent bias these were set to reasonable values based on the scikit-learn and tensor-flow documentation and some initial tests on a single train / validation set. 
@@ -131,11 +134,11 @@ The choice of parameters is specified in Table \ref{tab:hyperpars}.
        Regularisation parameter & Optimised - see text \\
        Learning rate  & Optimised - see text \\
       batch size  & 50 \\
-      Early stopping patience &  - \\
-     Maximum number of epochs &  - \\
-     Optimiser &   - \\
-     Loss weights &  \\
-     Activation function & \\
+      Early stopping patience &  5 \\
+     Maximum number of epochs &  50 \\
+     Optimiser &   Adam \\
+     Loss weights &  $[1, 15, 20, 54, 240, 380]$ \\
+     Activation function &  See text\\
     \end{tabular}
     \caption{The various hyperparameters used in training P-NET for radiation sensitivity.}
     \label{tab:hyperpars}
@@ -154,6 +157,7 @@ where $y_i$ the value for data-point $i$, $\hat{y}_i$ is the associated predicti
 \label{sec:results}
 {\color{red}Toby: Here we could split up each of the 3 sub-projects but i think it would be more cohesive to just describe the results in parallel with the two network architectures}
 \\
+We performed a systematic
 \subsection{Comparison of data types and architecture}
 We train the model independently for three different data types (see \ref{sec:data}), gene-expression, copy number violation and mutations. This is performed for both the Reactome and Gene Ontology network architecture.
 \\
